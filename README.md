@@ -1,6 +1,6 @@
-# API para cadastro de funcionários
+# API para gerenciamento de contas de usuários
 
-Esse projeto apresenta o MVP de requisido para conclusão da sprint 1 da curso de  **Engenharia de Softaware**  oferecido pela **PUC-Rio**
+Esse projeto apresenta o MVP de requisido para conclusão da sprint 3 da curso de  **Engenharia de Softaware**  oferecido pela **PUC-Rio**
 
 Para tal, foi criado uma API em python, utilizando como base as bibliotecas flask e sqlalchemy. 
 
