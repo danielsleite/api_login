@@ -97,7 +97,7 @@ def apresenta_login(login: Usuario):
         "login": login.login,
         "senha": "******",
         "email": login.email,
-        "cadastrato_por": login.cadastrado_por,
+        "cadastrado_por": login.cadastrado_por,
         "alterar_senha": login.alterar_senha,
     }
 

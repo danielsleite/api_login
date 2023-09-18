@@ -109,6 +109,38 @@ def get_logins():
 
 
 @app.post(
+    "/login",
+    tags=[login_tag],
+    responses={"200": UsuarioSchema, "404": ErrorSchema},
+)
+def get_login_busca(form: LoginBuscaSchema):
+    """Faz a busca por um dado login
+    Retorna uma representação das infomrações do login, em caso de sucesso.
+    """
+
+    logger.debug("Coletando informação de logins")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    usr = (
+        session.query(Usuario)
+        .filter(Usuario.login == form.login)
+        .first()
+    )
+
+    if not usr:
+        
+        error_msg = "Não foi possível encontrar o login: " + form.login
+        logger.warning(f"Erro ao buscar login '{form.login}', {error_msg}")
+        return {"message": error_msg}, 404
+    else:
+        logger.debug("Encontrado usuario de login: " + usr.login)
+        # retorna a representação de produto
+        print(usr)
+        return apresenta_login(usr), 200
+
+
+@app.post(
     "/login_validacao",
     tags=[login_tag],
     responses={"200": RetornoLoginValido, "202": RetornoLoginNaoValido},
@@ -146,7 +178,7 @@ def get_login(form: InterfaceParaLogin):
 
 
 @app.put(
-    "/senha",
+    "/login_senha",
     tags=[login_tag],
     responses={
         "200": UsuarioViewSchema,
@@ -155,7 +187,7 @@ def get_login(form: InterfaceParaLogin):
     },
 )
 def altera_senha(form: LoginSenhaNovaSchema):
-    """Altera a senha de um dado funcioanrio, a partir da informação de login do mesmo.
+    """Altera a senha de um dado usuario, a partir da informação de login do mesmo.
       Caso a flag de reset esteja ativa, o senha colocada será a senha padrão '123456'
 
     Retorna uma representação dos logins.

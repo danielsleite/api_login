@@ -8,6 +8,7 @@
 __pycache__/*
 database/*
 env_api_login
+env
 log/*
 
 # Compiled Java class files
