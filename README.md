@@ -4,7 +4,7 @@ Esse projeto apresenta o MVP de requisido para conclusão da sprint 3 da curso d
 
 Para tal, foi criado uma API em python, utilizando como base as bibliotecas flask e sqlalchemy. 
 
-Essa API tem como objetivo prover ferramentas para criação de um sistema de cadastro de funcionário. 
+Essa API tem como objetivo prover ferramentas para criação de um sistema de cadastro de usuários. 
 
 Para interação da API com o banco e front-end, foram criadas diversas rodas, entre elas:
 
@@ -50,3 +50,22 @@ Para executar a API  basta executar:
 Abra o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador para verificar o status da API em execução nas três vesões disponíveis (Sswagger, ReDoc, RapiDoc).
 
 Para versão `Swagger` abra o link [http://localhost:5000/openapi/swagger#/](http://localhost:5000/openapi/swagger#/) no navegador
+
+## Como executar através do Docker
+
+Certifique-se de ter o [Docker](https://docs.docker.com/engine/install/) instalado e em execução em sua máquina.
+
+Navegue até o diretório que contém o Dockerfile e o requirements.txt no terminal.
+Execute **como administrador** o seguinte comando para construir a imagem Docker:
+
+```
+$ docker build -t api-login .
+```
+
+Uma vez criada a imagem, para executar o container basta executar, **como administrador**, seguinte o comando:
+
+```
+$ docker run -p 5000:5000 api-login
+```
+
+Uma vez executando, para acessar a API, basta abrir o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador.
