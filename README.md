@@ -55,6 +55,11 @@ Para versão `Swagger` abra o link [http://localhost:5000/openapi/swagger#/](htt
 
 Certifique-se de ter o [Docker](https://docs.docker.com/engine/install/) instalado e em execução em sua máquina.
 
+Caso não exita, crie uma interface de rede para servir de ponte entre os outros container
+
+```
+$ docker network create --driver=bridge minha-rede
+```
 Navegue até o diretório que contém o Dockerfile e o requirements.txt no terminal.
 Execute **como administrador** o seguinte comando para construir a imagem Docker:
 
@@ -65,7 +70,7 @@ $ docker build -t api-login .
 Uma vez criada a imagem, para executar o container basta executar, **como administrador**, seguinte o comando:
 
 ```
-$ docker run -p 5000:5000 api-login
+$ docker run -d --name=api_login_ip --network=minha-rede -p 5000:5000 api-login
 ```
 
 Uma vez executando, para acessar a API, basta abrir o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador.

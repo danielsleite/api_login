@@ -122,14 +122,9 @@ def get_login_busca(form: LoginBuscaSchema):
     # criando conexão com a base
     session = Session()
     # fazendo a busca
-    usr = (
-        session.query(Usuario)
-        .filter(Usuario.login == form.login)
-        .first()
-    )
+    usr = session.query(Usuario).filter(Usuario.login == form.login).first()
 
     if not usr:
-        
         error_msg = "Não foi possível encontrar o login: " + form.login
         logger.warning(f"Erro ao buscar login '{form.login}', {error_msg}")
         return {"message": error_msg}, 404
