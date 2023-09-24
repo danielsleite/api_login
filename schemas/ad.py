@@ -60,6 +60,7 @@ class RetornoLoginValido(BaseModel):
     """
 
     logado: bool = True
+    lterar_senha: bool = False
 
 
 class RetornoLoginNaoValido(BaseModel):
