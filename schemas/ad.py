@@ -11,6 +11,7 @@ class UsuarioSchema(BaseModel):
     email: str = "joao.silva@empresa.com"
     alterar_senha: bool = True
     cadastrado_por: str = "Admin"
+    nivel: int = 1
 
 
 class LoginBuscaSchema(BaseModel):
@@ -61,6 +62,7 @@ class RetornoLoginValido(BaseModel):
 
     logado: bool = True
     lterar_senha: bool = False
+    nivel: int = 0
 
 
 class RetornoLoginNaoValido(BaseModel):
@@ -80,6 +82,7 @@ class UsuarioViewSchema(BaseModel):
     email: str = "joao.silva@empresa.com"
     alterar_senha: bool = True
     cadastrado_por: str = "Admin"
+    nivel: int = 1
 
 
 def apresenta_logins(logins: List[Usuario]):
@@ -100,6 +103,7 @@ def apresenta_login(login: Usuario):
         "email": login.email,
         "cadastrado_por": login.cadastrado_por,
         "alterar_senha": login.alterar_senha,
+        "nivel": login.nivel,
     }
 
 
