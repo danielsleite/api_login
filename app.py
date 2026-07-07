@@ -6,7 +6,6 @@ from sqlalchemy.exc import IntegrityError
 
 from model import Session, Usuario
 
-
 from logger import logger
 from schemas import *
 from flask_cors import CORS
@@ -22,6 +21,7 @@ home_tag = Tag(
     name="Documentação",
     description="Documentação da API com a ferramenta Swagger",
 )
+
 login_tag = Tag(
     name="Login",
     description="Adição, visualização, validação de login e alteração de senhas de usuario",
@@ -48,13 +48,20 @@ def add_login(form: UsuarioSchema):
     """
     usr = Usuario(
         login=form.login,
-        senha="123456",
+        senha="Far@1234",
         email=form.email,
         cadastrado_por=form.cadastrado_por,
         alterar_senha=True,
+        nivel= form.nivel,  # nivel de acesso do usuario, 1 = usuario nivel, 2 = usuario nivel 2, 3 = usuario nivel 3, 4 = usuario nivel 4, 5 = usuario nivel 5, 6 = usuario nivel 6, 7 = usuario nivel 7, 8 = usuario nivel 8, 9 = usuario nivel 9, 10 = usuario nivel 10
     )
     logger.debug(f"Tentativa de adicionar login de nome: '{usr.login}'")
     logger.warning(apresenta_login(usr))
+
+    if not usr.is_strong_password(usr.senha):
+        error_msg = "Senha fraca. A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
+        logger.warning(f"Erro ao tentar cadastrar: '{usr.login}', {error_msg}")
+        return {"message": error_msg}, 400  
+    
     try:
         # criando conexão com a base
         session = Session()
@@ -70,13 +77,13 @@ def add_login(form: UsuarioSchema):
 
     except IntegrityError as e:
         # como a duplicidade do nome é a provável razão do IntegrityError
-        error_msg = "login de mesmo nome já salvo na base :/"
+        error_msg = "Não foi possível salvar novo item : " + usr.login + " na base:\n"  + str(e)  #"login de mesmo nome já salvo na base :/"
         logger.warning(f"Erro tentar cadastrar: '{usr.login}', {error_msg}")
         return {"message": error_msg}, 409
 
     except Exception as e:
         # caso um erro fora do previsto
-        error_msg = "Não foi possível salvar novo item :/"
+        error_msg = "Não foi possível salvar novo item : " + usr.login + " na base:\n" + '\n'+ str(e)
         logger.warning(f"Erro ao tentar cadastrar o login: '{usr.login}', {error_msg}")
         return {"message": error_msg}, 400
 
@@ -99,7 +106,7 @@ def get_logins():
     logins = session.query(Usuario).all()
 
     if not logins:
-        # se não há produtos cadastrados
+        # se não há usuário cadastrado
         return {"logins": []}, 200
     else:
         logger.debug("%d logins econtrados" % len(logins))
@@ -188,32 +195,33 @@ def altera_senha(form: LoginSenhaNovaSchema):
     Retorna uma representação dos logins.
     """
 
-    pessoa_login = form.login
-    usr = busca_por_login(pessoa_login)
-    nova_senha = form.senha
-
-    if form.alterar_senha:
-        nova_senha = "123456"
-
-    elif not nova_senha:
-        # como a duplicidade do nome é a provável razão do IntegrityError
-        error_msg = "Nao foi possivel alterar a senha do login. Verifique se o campo usr está correto.:/"
-        logger.warning(f"Erro ao alterar senha do login: '{usr.login}', {error_msg}")
-        return {"message": error_msg}, 404
-
-    if not usr:
-        # se o produto não foi encontrado
-        error_msg = "login não encontrado na base :/"
-        logger.warning(f"Erro ao buscar login '{pessoa_login}', {error_msg}")
-        return {"message": error_msg}, 404
-
     try:
         # criando conexão com a base
-        logger.warning(f"Encontrado usuario de login: '{pessoa_login}'")
         session = Session()
-        session.query(Usuario).filter(Usuario.login == pessoa_login).update(
-            {
-                Usuario.senha: nova_senha,
+        usr = session.query(Usuario).filter(Usuario.login == form.login).first()
+        
+        if not usr:
+            # se o usuario não foi encontrado
+            error_msg = "login não encontrado na base :/"
+            logger.warning(f"Erro ao buscar login '{usr.login}', {error_msg}")
+            return {"message": error_msg}, 404
+    
+        if usr.senhaOld1 == form.senha or usr.senhaOld2 == form.senha or usr.senhaOld3 == form.senha or usr.senha == form.senha:
+            error_msg = "A nova senha não pode ser igual a nenhuma das últimas 3 senhas utilizadas."
+            logger.warning(f"Erro ao alterar senha do login: '{usr.login}', {error_msg}")
+            return {"message": error_msg}, 400
+
+        if usr.is_strong_password(form.senha) == False:
+            error_msg = "Senha fraca. A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
+            logger.warning(f"Erro ao alterar senha do login: '{usr.login}', {error_msg}")
+            return {"message": error_msg}, 400  
+
+        session.query(Usuario).filter(Usuario.login == usr.login).update(
+            {          
+                Usuario.senhaOld3: usr.senhaOld2,
+                Usuario.senhaOld2: usr.senhaOld1,
+                Usuario.senhaOld1: usr.senha,     
+                Usuario.senha: form.senha,
                 Usuario.alterar_senha: form.alterar_senha,
             }
         )
@@ -232,7 +240,6 @@ def altera_senha(form: LoginSenhaNovaSchema):
         error_msg = "Erro ao atualizar a senha :/"
         logger.warning(f"Erro ao alterar a senha do '{usr.login}', {error_msg}")
         return {"message": error_msg}, 400
-
 
 @app.delete(
     "/login_excluir",
