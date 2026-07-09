@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from model import Base
+from datetime import datetime
 import re
 
 """
@@ -19,7 +20,8 @@ class Usuario(Base):
     nivel = Column("nivel", Integer, nullable=False, default=1)  # nivel de acesso do usuario, 1 = usuario nivel, 2 = usuario nivel 2, 3 = usuario nivel 3, 4 = usuario nivel 4, 5 = usuario nivel 5, 6 = usuario nivel 6, 7 = usuario nivel 7, 8 = usuario nivel 8, 9 = usuario nivel 9, 10 = usuario nivel 10
     senhaOld1 = Column("senhaOld1", String(15), unique=False, nullable=True)
     senhaOld2 = Column("senhaOld2", String(15), unique=False, nullable=True)
-    senhaOld3 = Column("senhaOld3", String(15), unique=False, nullable=True) 
+    senhaOld3 = Column("senhaOld3", String(15), unique=False, nullable=True)
+    data_criacao_alteracao = Column("data_senha", String(15), unique=False, nullable=False)
 
     def is_strong_password(self, password: str) -> bool:
         if len(password) < 8:
@@ -40,7 +42,8 @@ class Usuario(Base):
         cadastrado_por: str,
         alterar_senha: bool = True,
         nivel: int = 1, # nivel de acesso do usuario, 1 = usuario nivel, 2 = usuario nivel 2, 3 = usuario nivel 3, 4 = usuario nivel 4, 5 = usuario nivel 5, 6 = usuario nivel 6, 7 = usuario nivel 7, 8 = usuario nivel 8, 9 = usuario nivel 9, 10 = usuario nivel 10
-        
+        data_criacao_alteracao: str = datetime.today().strftime("%d/%m/%Y, %H:%M:%S")
+
     ) -> None:
         super().__init__()
         self.login = login
@@ -49,3 +52,4 @@ class Usuario(Base):
         self.cadastrado_por = cadastrado_por
         self.alterar_senha = alterar_senha
         self.nivel = nivel
+        self.data_criacao_alteracao = data_criacao_alteracao

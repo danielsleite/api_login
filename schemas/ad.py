@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 from model import Usuario
 
-
 class UsuarioSchema(BaseModel):
     """Define como um novo login a ser inserido deve ser representado"""
 
@@ -12,7 +11,6 @@ class UsuarioSchema(BaseModel):
     alterar_senha: bool = True
     cadastrado_por: str = "Admin"
     nivel: int = 1
-
 
 class LoginBuscaSchema(BaseModel):
     """Define como deve ser a estrutura que representa a busca do funcinário.
@@ -52,7 +50,7 @@ class InterfaceParaLogin(BaseModel):
     """Define como o formado do envio do dado para login."""
 
     login: str = "jsilva"
-    senha: str = "123456"
+    senha: str = "a123456"
 
 
 class RetornoLoginValido(BaseModel):
@@ -63,6 +61,7 @@ class RetornoLoginValido(BaseModel):
     logado: bool = True
     lterar_senha: bool = False
     nivel: int = 0
+    data_criacao_alteracao: str = "00:00:0000"
 
 
 class RetornoLoginNaoValido(BaseModel):
@@ -83,6 +82,7 @@ class UsuarioViewSchema(BaseModel):
     alterar_senha: bool = True
     cadastrado_por: str = "Admin"
     nivel: int = 1
+    data_criacao_alteracao: str = "00:00:0000"
 
 
 def apresenta_logins(logins: List[Usuario]):
@@ -104,8 +104,8 @@ def apresenta_login(login: Usuario):
         "cadastrado_por": login.cadastrado_por,
         "alterar_senha": login.alterar_senha,
         "nivel": login.nivel,
+        "data_criacao_alteracao": login.data_criacao_alteracao
     }
-
 
 def apresenta_senha(login: Usuario):
     """Retorna uma string com a senha do usuario
