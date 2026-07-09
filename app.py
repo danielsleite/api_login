@@ -1,3 +1,5 @@
+import datetime
+
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask import redirect
 from urllib.parse import unquote
@@ -53,6 +55,7 @@ def add_login(form: UsuarioSchema):
         cadastrado_por=form.cadastrado_por,
         alterar_senha=True,
         nivel= form.nivel,  # nivel de acesso do usuario, 1 = usuario nivel, 2 = usuario nivel 2, 3 = usuario nivel 3, 4 = usuario nivel 4, 5 = usuario nivel 5, 6 = usuario nivel 6, 7 = usuario nivel 7, 8 = usuario nivel 8, 9 = usuario nivel 9, 10 = usuario nivel 10
+        # data de criação é adicionada no devine da classe. data_criacao_alteracao: str = datetime.today().strftime("%d/%m/%Y")
     )
     logger.debug(f"Tentativa de adicionar login de nome: '{usr.login}'")
     logger.warning(apresenta_login(usr))
@@ -153,7 +156,7 @@ def get_login(form: InterfaceParaLogin):
     Retorna um dicionário com a informação de login realizado e o status de reset de senha.
     """
 
-    logger.debug(f"Validando login do login:  #{form.login}")
+    logger.debug(f"!!!!!!!!!!!Validando login do login:  #{form.login}")
     # criando conexão com a base
     session = Session()
     # fazendo a busca
@@ -223,6 +226,7 @@ def altera_senha(form: LoginSenhaNovaSchema):
                 Usuario.senhaOld1: usr.senha,     
                 Usuario.senha: form.senha,
                 Usuario.alterar_senha: form.alterar_senha,
+                Usuario.data_criacao_alteracao: datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
             }
         )
         session.commit()
