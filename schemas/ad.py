@@ -51,6 +51,7 @@ class InterfaceParaLogin(BaseModel):
 
     login: str = "jsilva"
     senha: str = "a123456"
+    altera_senha: bool = False
 
 
 class RetornoLoginValido(BaseModel):
