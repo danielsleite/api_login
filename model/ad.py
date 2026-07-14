@@ -34,6 +34,9 @@ class Usuario(Base):
 
         return has_upper and has_lower and has_number and has_special
 
+    def diff_time(self):
+        return datetime.now() - datetime.strptime(self.data_criacao_alteracao, "%d/%m/%Y, %H:%M:%S")
+
     def __init__(
         self,
         login: str,
