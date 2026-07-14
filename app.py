@@ -90,6 +90,9 @@ def add_login(form: UsuarioSchema):
         logger.warning(f"Erro ao tentar cadastrar o login: '{usr.login}', {error_msg}")
         return {"message": error_msg}, 400
 
+    # finally:
+    #     session.close()
+
 
 @app.get(
     "/logins",
@@ -168,7 +171,7 @@ def get_login(form: InterfaceParaLogin):
     )
 
     if not usr:
-        # se o produto não foi encontrado
+        # se o usuário não foi encontrado
         error_msg = "login não encontrado na base :/"
         logger.warning(
             f"Erro ao buscar login '{form.login}' e senha '{form.senha}', {error_msg}"
@@ -176,11 +179,24 @@ def get_login(form: InterfaceParaLogin):
         return {"logado": False}, 202
 
     else:
+        altera_senha =  False
+        if  usr.diff_time().seconds > 60:
+            altera_senha = True
+            logger.warning(f"Tempo de senha expirou, necessário criar nova senha: '{usr.login}'  a senha foi criada a '{usr.diff_time().days}' dias")
+
+            session.query(Usuario).filter(Usuario.login == usr.login).update(
+                {
+                    Usuario.alterar_senha: altera_senha
+                }
+            )
+            session.commit()
+            logger.warning(f"Usuário: '{usr.login}' foi setado para reset de senha")
+
+
         # logger.warning(f"Login realizado com sucesso'{form.login}' e senha '{form.senha}', {error_msg}")
         logger.warning(f"Logado: '{usr.login}'")
         # retorna a representação de produto
-        return {"logado": True, "alterar_senha": usr.alterar_senha}, 200
-
+        return {"logado": True, "alterar_senha": usr.alterar_senha or altera_senha}, 200
 
 @app.put(
     "/login_senha",
