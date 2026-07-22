@@ -180,7 +180,7 @@ def get_login(form: InterfaceParaLogin):
 
     else:
         altera_senha =  False
-        if  usr.diff_time().seconds > 60:
+        if  usr.diff_time().days > 5:
             altera_senha = True
             logger.warning(f"Tempo de senha expirou, necessário criar nova senha: '{usr.login}'  a senha foi criada a '{usr.diff_time().days}' dias")
 
@@ -279,26 +279,36 @@ def exclui_login(query: LoginBuscaSchema):
     Retorna uma mensagem com a confirmação da exclusão ou informação do erro
     """
 
-    pessoa_login = query.login
-    usr = busca_por_login(pessoa_login)
-
-    if not usr:
-        # se o produto não foi encontrado
-        error_msg = f"login não encontrado na base: '{query.login}'"
-        logger.warning(f"Erro ao buscar login '{pessoa_login}', {error_msg}")
-        return {"message": error_msg}, 404
+    # pessoa_login = query.login
+    # usr = busca_por_login(pessoa_login)
+    #
+    # if not usr:
+    #     # se o produto não foi encontrado
+    #     error_msg = f"login não encontrado na base: '{query.login}'"
+    #     logger.warning(f"Erro ao buscar login '{pessoa_login}', {error_msg}")
+    #     return {"message": error_msg}, 404
 
     try:
         # Salva o CPF do login para fazer a relaçaõ entra a tebela login e a tabela login
         # criando conexão com a base
         session = Session()
 
-        session.query(Usuario).filter(Usuario.login == pessoa_login).delete()
+        logger.debug(f"Procurando senha do login de login:  #{query.login}")
+        # fazendo a busca
+        usr = session.query(Usuario).filter(Usuario.login == query.login).first()
+
+        if not usr:
+            # se o produto não foi encontrado
+            error_msg = f"login não encontrado na base: '{query.login}'"
+            logger.warning(f"Erro ao buscar login '{query.login}', {error_msg}")
+            return {"message": error_msg}, 404
+
+        session.query(Usuario).filter(Usuario.login == query.login).delete()
 
         session.commit()
 
-        logger.debug(f"login excluido com sucesso: '{usr.login}'")
-        error_msg = f"login exlcuido com sucesso: '{usr.login}'"
+        logger.debug(f"login excluido com sucesso: '{query.login}'")
+        error_msg = f"login exlcuido com sucesso: '{query.login}'"
         return {"message": error_msg}, 200
 
     except IntegrityError as e:
@@ -306,21 +316,21 @@ def exclui_login(query: LoginBuscaSchema):
         error_msg = (
             "Nao foi excluir o login. Verifique se o campo login está correto.:/"
         )
-        logger.warning(f"Erro ao excluir o login: '{usr.login}', {error_msg}")
+        logger.warning(f"Erro ao excluir o login: '{query.login}', {error_msg}")
         return {"message": error_msg}, 409
 
     except Exception as e:
         # caso um erro fora do previsto
         error_msg = "Erro ao atualizar os dados do login :/"
-        logger.warning(f"Erro ao dados do login: '{usr.login}', {error_msg}")
+        logger.warning(f"Erro ao dados do login: '{query.login}', {error_msg}")
         return {"message": error_msg}, 400
 
 
-# Função auxiliar para buscar funcionário
-def busca_por_login(login: str) -> Usuario:
-    logger.debug(f"Procurando senha do login de login:  #{login}")
-    # criando conexão com a base
-    session = Session()
-    # fazendo a busca
-    usr = session.query(Usuario).filter(Usuario.login == login).first()
-    return usr
+# # Função auxiliar para buscar funcionário
+# def busca_por_login(login: str) -> Usuario:
+#     logger.debug(f"Procurando senha do login de login:  #{login}")
+#     # criando conexão com a base
+#     session = Session()
+#     # fazendo a busca
+#     usr = session.query(Usuario).filter(Usuario.login == login).first()
+#     return usr
